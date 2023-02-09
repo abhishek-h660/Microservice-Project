@@ -1,0 +1,45 @@
+version: "1"
+services:
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - db:/data/db
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  service-auth:
+    build: ./../service-auth/
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      URI: mongodb://mongo:27017
+    depends_on:
+      - db
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  service-broker:
+    build: ./../service-broker/
+    ports:
+      - "5000:5000"
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  service-logger:
+    build: ./../service-logger/
+    ports:
+      - "80:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    restart: always
+volumes:
+  db:
